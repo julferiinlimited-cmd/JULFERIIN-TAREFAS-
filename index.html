@@ -1,0 +1,417 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14284b">
+<title>JULFERIIN GESTÃO EMPRESARIAL</title>
+<style>
+:root{--navy:#14284b;--blue:#2778bd;--light:#dceeff;--wine:#701d3b}
+*{box-sizing:border-box}
+body{margin:0;background:#f2f5fa;color:#172033;font-family:Arial,sans-serif}
+header{background:var(--navy);color:white;padding:18px}
+header h1{font-size:20px;margin:0}
+header p{font-size:12px}
+main{max-width:1000px;margin:auto;padding:15px}
+.card{background:white;padding:16px;border-radius:14px;margin-bottom:15px;border:1px solid #dce3ed}
+h2{color:var(--navy);font-size:19px}
+h3{font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+button{border:0;border-radius:8px;background:var(--navy);color:white;padding:12px;cursor:pointer;font-weight:bold}
+.secondary{background:#e4edf9;color:var(--navy)}
+.wine{background:var(--wine)}
+.danger{background:#b42318}
+.branch,.area{background:white;color:var(--navy);border:1px solid #ccd7e7;text-align:left;padding:15px;min-height:75px}
+.branch strong,.area strong{display:block;margin-bottom:7px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:8px;margin:5px 0 12px;font-size:15px}
+label{font-size:13px;font-weight:bold}
+.field{margin-bottom:4px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row>*{flex:1}
+.hidden{display:none!important}
+.muted{font-size:12px;color:#64748b}
+.record{padding:12px;border:1px solid #dce3ed;border-radius:10px;margin:10px 0}
+.badge{background:var(--light);padding:5px 9px;border-radius:20px;font-size:12px}
+.notice{background:#fff5d9;padding:12px;border-radius:9px;font-size:12px;line-height:1.5}
+img.photo{width:80px;height:80px;border-radius:50%;object-fit:cover}
+</style>
+</head>
+<body>
+<header>
+<h1>JULFERIIN GESTÃO EMPRESARIAL</h1>
+<p>Gestão central de ramos, áreas, postos e documentos</p>
+</header>
+<main>
+
+<section id="home" class="card">
+<h2>Os 6 painéis da empresa</h2>
+<p class="muted">Escolha o painel e introduza o respetivo código.</p>
+<div id="branches" class="grid"></div>
+<hr>
+<h2>Pesquisar posto</h2>
+<div class="field">
+<label>Número do posto</label>
+<input id="searchCode" placeholder="Ex.: JR0001R1">
+</div>
+<button onclick="searchPost()">Pesquisar</button>
+<div id="searchResult"></div>
+</section>
+
+<section id="branchPage" class="card hidden">
+<div class="row">
+<h2 id="branchTitle"></h2>
+<button class="secondary" onclick="home()">Voltar</button>
+</div>
+<div id="branchContent"></div>
+</section>
+
+<section id="areaPage" class="card hidden">
+<button class="secondary" onclick="backBranch()">Voltar ao ramo</button>
+<h2 id="areaTitle"></h2>
+<h3>Local de operação</h3>
+<div class="grid">
+<div class="field">País<input id="country" value="Moçambique"></div>
+<div class="field">Província<input id="province"></div>
+<div class="field">Distrito<input id="district"></div>
+<div class="field">Posto administrativo<input id="admin"></div>
+</div>
+<button onclick="showProfile()">OK — continuar</button>
+
+<div id="profileSection" class="hidden">
+<hr>
+<h3>Perfil do responsável</h3>
+<form id="profileForm">
+<div class="grid">
+<div class="field">Nome completo *<input name="name" required></div>
+<div class="field">Número de telefone *<input name="phone" required></div>
+<div class="field">BI / DIRE / Passaporte<input name="identity"></div>
+<div class="field">E-mail<input name="email" type="email"></div>
+<div class="field">Cargo<input name="role"></div>
+<div class="field">Fotografia<input name="photo" type="file" accept="image/*"></div>
+<div class="field">CV<input name="cv" type="file"></div>
+<div class="field">Certificado<input name="certificate" type="file"></div>
+<div class="field">Documento anexo<input name="attachment" type="file"></div>
+</div>
+<button type="submit">Guardar perfil</button>
+</form>
+</div>
+</section>
+
+<section id="postPage" class="card hidden">
+<button class="secondary" onclick="home()">Início</button>
+<h2>CAMPO PRINCIPAL PARA TRABALHO JULFERIIN</h2>
+<div id="postInfo"></div>
+<div class="row">
+<button onclick="editPost()">Editar perfil</button>
+<button onclick="mapPost()">Map posto now</button>
+</div>
+
+<hr>
+<h3>Relatório de atividades</h3>
+<form id="reportForm">
+<label>Período</label>
+<select name="period">
+<option>Diário</option><option>Semanal</option>
+<option>Mensal</option><option>Anual</option>
+</select>
+<label>Data</label><input name="date" type="date" required>
+<label>Produção e atividades</label>
+<textarea name="activities"></textarea>
+<div class="grid">
+<div>Vendas (MT)<input name="sales" type="number" step=".01"></div>
+<div>Compras (MT)<input name="purchases" type="number" step=".01"></div>
+<div>Despesas (MT)<input name="expenses" type="number" step=".01"></div>
+<div>Viagens (MT)<input name="travel" type="number" step=".01"></div>
+<div>Dívidas (MT)<input name="debts" type="number" step=".01"></div>
+<div>Caixa entrada (MT)<input name="cashIn" type="number" step=".01"></div>
+<div>Caixa saída (MT)<input name="cashOut" type="number" step=".01"></div>
+</div>
+<label>Fotografias e documentos</label>
+<input name="files" type="file" multiple>
+<button>Guardar relatório</button>
+</form>
+
+<h3>Relatórios guardados</h3>
+<div id="reports"></div>
+
+<hr>
+<h3>Documentos e notas do trabalhador</h3>
+<form id="docForm">
+<label>Título do documento</label>
+<input name="title" required>
+<label>Texto / notas</label>
+<textarea name="notes"></textarea>
+<label>Ficheiros</label><input name="files" type="file" multiple>
+<button>Guardar documento</button>
+</form>
+<div id="documents"></div>
+</section>
+
+<section id="director" class="card hidden">
+<h2>Painel do Diretor-Geral</h2>
+<h3>Redes sociais da empresa</h3>
+<label>TikTok</label><input id="tiktok">
+<label>Facebook</label><input id="facebook">
+<label>Instagram</label><input id="instagram">
+<label>YouTube</label><input id="youtube">
+<button onclick="saveSocial()">Guardar links</button>
+
+<hr>
+<h3>Cofre documental da empresa</h3>
+<form id="vaultForm">
+<label>Nome do documento</label><input name="title" required>
+<label>Ficheiro</label><input name="file" type="file" required>
+<button>Adicionar documento</button>
+</form>
+<div id="vault"></div>
+
+<hr>
+<h3>Todos os postos</h3>
+<div id="allPosts"></div>
+
+<hr>
+<h3>Descarregar dados da plataforma</h3>
+<div class="grid">
+<button onclick="downloadJSON()">Cópia de segurança</button>
+<button onclick="exportCSV()">Excel / CSV</button>
+<button onclick="exportWord()">Microsoft Word</button>
+<button onclick="exportPDF()">Guardar em PDF</button>
+<button onclick="exportSlides()">PowerPoint (apresentação HTML)</button>
+</div>
+<p class="muted">O PDF usa a opção Imprimir do navegador. A apresentação HTML pode ser aberta no navegador e projetada. Para um ficheiro PowerPoint .pptx nativo, é necessária uma biblioteca adicional.</p>
+</section>
+
+<div class="card notice">
+<strong>Importante:</strong> esta versão guarda dados no armazenamento local do navegador. Não sincroniza entre dispositivos e não substitui um servidor seguro. Os códigos de acesso estão no código e servem apenas para demonstração. Não utilize documentos pessoais reais nesta versão pública.
+</div>
+</main>
+
+<script>
+const branches=[
+{id:'main',name:'JULFERIIN LDA PRINCIPAL',pin:'123456J',areas:[]},
+{id:'ltd',name:'JULFERIIN LTD',pin:'0000J',areas:['Farmácia','Segurança','Vestuário','Cosméticos','Importação']},
+{id:'ltd1',name:'JULFERIIN LTD1',pin:'1111J',areas:['Limpeza','Manutenção','Fabrico de sabão líquido','Reparação eletrónica']},
+{id:'ltd2',name:'JULFERIIN LTD2',pin:'2222J',areas:['Aluguer de viaturas','Exportação','Importação']},
+{id:'ltd3',name:'JULFERIIN LTD3',pin:'3333J',areas:['Produtos comestíveis','Cozinha','Mercearia']},
+{id:'ltd4',name:'JULFERIIN LTD4',pin:'4444J',areas:['Agricultura','Agropecuária','Jardinagem','Pulverização','Fumigação']}
+];
+
+let db;
+try{db=JSON.parse(localStorage.getItem('julferiin_data'))||{posts:[],next:1,vault:[],social:{}}}
+catch(e){db={posts:[],next:1,vault:[],social:{}}}
+
+let branch=null,area='',current='',editing='';
+const $=id=>document.getElementById(id);
+function save(){try{localStorage.setItem('julferiin_data',JSON.stringify(db))}
+catch(e){alert('Armazenamento cheio. Utilize ficheiros menores.');}}
+function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function show(id){['home','branchPage','areaPage','postPage','director'].forEach(x=>$(x).classList.toggle('hidden',x!==id))}
+function home(){show('home');renderBranches()}
+function renderBranches(){
+$('branches').innerHTML=branches.map(b=>`<button class="branch" onclick="enterBranch('${b.id}')"><strong>${b.name}</strong><span>${b.id==='main'?'Controlo geral':b.areas.join(' · ')}</span></button>`).join('');
+}
+function enterBranch(id){
+let b=branches.find(x=>x.id===id),pin=prompt('Código de abertura: '+b.name);
+if(pin===null)return;
+if(pin!==b.pin){alert('Código incorreto');return}
+branch=b;
+$('branchTitle').textContent=b.name;
+show('branchPage');
+renderBranch();
+}
+function renderBranch(){
+if(branch.id==='main'){
+$('branchContent').innerHTML=`
+<div class="grid">
+<div class="record">Ramos operacionais: 5</div>
+<div class="record">Postos registados: ${db.posts.length}</div>
+</div>
+<h3>Todos os ramos e áreas</h3>
+<div class="grid">${branches.filter(b=>b.id!=='main').map(b=>`<div class="record"><b>${b.name}</b><p>${b.areas.join(' · ')}</p></div>`).join('')}</div>
+<button onclick="show('director');renderDirector()">Abrir controlo do Diretor-Geral</button>
+<h3>Pesquisar e gerir postos</h3><div id="branchPosts"></div>`;
+renderPostList('branchPosts',true);
+}else{
+$('branchContent').innerHTML='<h3>Escolha uma área</h3><div class="grid">'+branch.areas.map(a=>`<button class="area" onclick="chooseArea('${a.replace(/'/g,"\\'")}')">${a}</button>`).join('')+'</div><h3>Postos deste ramo</h3><div id="branchPosts"></div>';
+renderPostList('branchPosts',false);
+}}
+function chooseArea(a){
+area=a;editing='';
+$('areaTitle').textContent=branch.name+' — '+a;
+$('profileSection').classList.add('hidden');
+$('profileForm').reset();
+['country','province','district','admin'].forEach(id=>$(id).value=id==='country'?'Moçambique':'');
+show('areaPage');
+}
+function showProfile(){
+if(!$('province').value.trim()||!$('district').value.trim()){
+if(!confirm('Província ou distrito vazio. Continuar?'))return;
+}
+$('profileSection').classList.remove('hidden');
+}
+function backBranch(){show('branchPage');renderBranch()}
+function readFile(file){
+return new Promise(resolve=>{
+if(!file)return resolve(null);
+const r=new FileReader();
+r.onload=()=>resolve({name:file.name,type:file.type,data:r.result});
+r.onerror=()=>resolve({name:file.name,type:file.type});
+r.readAsDataURL(file);
+});
+}
+async function filesFrom(input){
+let out=[];
+for(const f of input.files)out.push(await readFile(f));
+return out;
+}
+$('profileForm').onsubmit=async e=>{
+e.preventDefault();
+let f=e.target,old=db.posts.find(p=>p.id===editing);
+let post={
+...(old||{}),
+id:old?old.id:'JR'+String(db.next++).padStart(4,'0')+'R1',
+code:old?old.code:'JR'+String(db.next-1).padStart(4,'0')+'R1',
+branch:branch.name,branchId:branch.id,area,
+location:{country:$('country').value,province:$('province').value,district:$('district').value,admin:$('admin').value},
+name:f.elements.name.value,phone:f.elements.phone.value,
+identity:f.elements.identity.value,email:f.elements.email.value,role:f.elements.role.value,
+status:old?.status||'Pendente',reports:old?.reports||[],docs:old?.docs||[],
+created:old?.created||new Date().toISOString(),coords:old?.coords||null,
+files:old?.files||{}
+};
+for(let k of ['photo','cv','certificate','attachment']){
+let file=f.elements[k].files[0];if(file)post.files[k]=await readFile(file);
+}
+if(old)db.posts=db.posts.map(p=>p.id===old.id?post:p);
+else db.posts.push(post);
+save();current=post.id;editing='';openPost(current);
+};
+function openPost(id){
+current=id;let p=db.posts.find(x=>x.id===id);if(!p)return;
+show('postPage');
+$('postInfo').innerHTML=`<div class="record">
+<span class="badge">${safe(p.code)}</span>
+<h3>${safe(p.name)}</h3>
+<p><b>Ramo:</b> ${safe(p.branch)} — ${safe(p.area)}</p>
+<p><b>Estado:</b> ${safe(p.status)}</p>
+<p><b>Telefone:</b> ${safe(p.phone)}</p>
+<p><b>BI/DIRE/Passaporte:</b> ${safe(p.identity||'—')}</p>
+<p><b>E-mail:</b> ${safe(p.email||'—')}</p>
+<p><b>Cargo:</b> ${safe(p.role||'—')}</p>
+<p><b>Local:</b> ${safe(Object.values(p.location||{}).join(', '))}</p>
+<p><b>GPS:</b> ${p.coords?safe(p.coords.lat+', '+p.coords.lon):'Não registado'}</p>
+${p.files?.photo?.data?`<img class="photo" src="${p.files.photo.data}">`:''}
+</div>`;
+$('reportForm').elements.date.value=new Date().toISOString().slice(0,10);
+renderReports(p);renderDocs(p);
+}
+function editPost(){
+let p=db.posts.find(x=>x.id===current);if(!p)return;
+branch=branches.find(b=>b.id===p.branchId);area=p.area;editing=p.id;
+chooseArea(p.area);
+['country','province','district','admin'].forEach((k,i)=>$(k).value=Object.values(p.location||{})[i]||'');
+let f=$('profileForm');
+['name','phone','identity','email','role'].forEach(k=>f.elements[k].value=p[k]||'');
+$('profileSection').classList.remove('hidden');
+}
+function mapPost(){
+let p=db.posts.find(x=>x.id===current);if(!p)return;
+if(!navigator.geolocation){alert('GPS não disponível.');return}
+navigator.geolocation.getCurrentPosition(pos=>{
+p.coords={lat:pos.coords.latitude,lon:pos.coords.longitude};save();openPost(p.id);
+if(confirm('Coordenadas guardadas. Abrir mapa?'))window.open(`https://www.google.com/maps?q=${p.coords.lat},${p.coords.lon}`,'_blank');
+},()=>alert('Ative o GPS e permita acesso à localização.'));
+}
+$('reportForm').onsubmit=async e=>{
+e.preventDefault();
+let p=db.posts.find(x=>x.id===current),f=e.target,fd=new FormData(f);
+let files=await filesFrom(f.elements.files);
+p.reports.unshift({
+period:fd.get('period'),date:fd.get('date'),activities:fd.get('activities'),
+sales:fd.get('sales'),purchases:fd.get('purchases'),expenses:fd.get('expenses'),
+travel:fd.get('travel'),debts:fd.get('debts'),cashIn:fd.get('cashIn'),
+cashOut:fd.get('cashOut'),files
+});
+save();renderReports(p);alert('Relatório guardado.');
+};
+function renderReports(p){
+$('reports').innerHTML=(p.reports||[]).map((r,i)=>`<div class="record">
+<b>${safe(r.period)} — ${safe(r.date)}</b>
+<p>${safe(r.activities)}</p>
+<p>Vendas: ${safe(r.sales||0)} MT | Compras: ${safe(r.purchases||0)} MT | Despesas: ${safe(r.expenses||0)} MT</p>
+<button class="secondary" onclick="exportOne('${p.id}',${i})">Descarregar relatório</button>
+</div>`).join('')||'<p class="muted">Sem relatórios.</p>';
+}
+$('docForm').onsubmit=async e=>{
+e.preventDefault();
+let f=e.target,p=db.posts.find(x=>x.id===current);
+p.docs.unshift({title:f.elements.title.value,notes:f.elements.notes.value,files:await filesFrom(f.elements.files),date:new Date().toISOString()});
+save();renderDocs(p);f.reset();alert('Documento guardado.');
+};
+function renderDocs(p){
+$('documents').innerHTML=(p.docs||[]).map(d=>`<div class="record"><b>${safe(d.title)}</b><p>${safe(d.notes)}</p><p class="muted">${(d.files||[]).map(x=>safe(x.name)).join(', ')}</p></div>`).join('')||'<p class="muted">Sem documentos.</p>';
+}
+function searchPost(){
+let q=$('searchCode').value.trim().toUpperCase();
+let p=db.posts.find(p=>p.code.toUpperCase()===q);
+$('searchResult').innerHTML=p?`<div class="record"><b>${safe(p.code)} — ${safe(p.name)}</b><p>${safe(p.branch)} / ${safe(p.area)}</p><button onclick="openPost('${p.id}')">Abrir perfil</button></div>`:'<p>Posto não encontrado.</p>';
+}
+function renderPostList(id,all){
+let el=$(id);if(!el)return;
+let list=all?db.posts:db.posts.filter(p=>p.branchId===branch.id);
+el.innerHTML=list.map(p=>`<div class="record"><b>${safe(p.code)} — ${safe(p.name)}</b><p>${safe(p.branch)} / ${safe(p.area)} / ${safe(p.status)}</p><button onclick="openPost('${p.id}')">Abrir</button> <button class="secondary" onclick="statusPost('${p.id}')">Alterar estado</button></div>`).join('')||'<p class="muted">Sem postos registados.</p>';
+}
+function statusPost(id){
+let p=db.posts.find(x=>x.id===id);
+let s=prompt('Estado: Aceite, Pendente, Bloqueado ou Cancelado',p.status);
+if(!s)return;
+if(!['Aceite','Pendente','Bloqueado','Cancelado'].includes(s)){alert('Estado inválido.');return}
+p.status=s;save();renderDirector();renderBranch();
+}
+function renderDirector(){
+['TikTok','Facebook','Instagram','YouTube'].forEach(k=>{let id=k.toLowerCase();$(id).value=db.social[id]||''});
+renderPostList('allPosts',true);
+$('vault').innerHTML=db.vault.map(v=>`<div class="record">${safe(v.title)} — ${safe(v.file?.name||'ficheiro')}</div>`).join('');
+}
+function saveSocial(){
+db.social={tiktok:$('tiktok').value,facebook:$('facebook').value,instagram:$('instagram').value,youtube:$('youtube').value};save();alert('Links guardados.');
+}
+$('vaultForm').onsubmit=async e=>{
+e.preventDefault();let f=e.target;
+db.vault.unshift({title:f.elements.title.value,file:await readFile(f.elements.file.files[0])});
+save();renderDirector();f.reset();
+};
+function downloadFile(name,content,type){
+let a=document.createElement('a');
+a.href=URL.createObjectURL(new Blob([content],{type}));
+a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function downloadJSON(){downloadFile('JULFERIIN_backup.json',JSON.stringify(db,null,2),'application/json');}
+function csvCell(x){return '"'+String(x??'').replace(/"/g,'""')+'"'}
+function exportCSV(){
+let rows=[['Código','Estado','Ramo','Área','Nome','Telefone','BI','Email','Cargo','País','Província','Distrito','Posto administrativo','Relatórios']];
+db.posts.forEach(p=>rows.push([p.code,p.status,p.branch,p.area,p.name,p.phone,p.identity,p.email,p.role,p.location.country,p.location.province,p.location.district,p.location.admin,p.reports.length]));
+downloadFile('JULFERIIN_postos.csv','\ufeff'+rows.map(r=>r.map(csvCell).join(';')).join('\r\n'),'text/csv;charset=utf-8');
+}
+function exportWord(){
+let html='<html><meta charset="utf-8"><h1>JULFERIIN Gestão Empresarial</h1>'+db.posts.map(p=>`<h2>${safe(p.code)} — ${safe(p.name)}</h2><p>${safe(p.branch)} / ${safe(p.area)}</p><p>Telefone: ${safe(p.phone)}</p>`).join('');
+downloadFile('JULFERIIN_relatorio.doc',html,'application/msword');
+}
+function exportPDF(){
+let w=window.open('','_blank');if(!w){alert('Permita janelas pop-up.');return}
+w.document.write('<html><meta charset="utf-8"><h1>JULFERIIN Gestão Empresarial</h1>'+db.posts.map(p=>`<h2>${safe(p.code)} — ${safe(p.name)}</h2><p>${safe(p.branch)} / ${safe(p.area)}</p><p>${safe(p.phone)}</p>`).join(''));
+w.document.close();w.print();
+}
+function exportSlides(){
+let html='<html><meta charset="utf-8"><style>body{font:24px Arial}.slide{height:90vh;padding:40px;page-break-after:always;background:#eaf2ff}</style><div class="slide"><h1>JULFERIIN GESTÃO EMPRESARIAL</h1><p>Total de postos: '+db.posts.length+'</p></div>'+db.posts.map(p=>`<div class="slide"><h1>${safe(p.code)}</h1><h2>${safe(p.name)}</h2><p>${safe(p.branch)} — ${safe(p.area)}</p><p>${safe(p.phone)}</p></div>`).join('');
+downloadFile('JULFERIIN_apresentacao.html',html,'text/html');
+}
+function exportOne(id,i){
+let p=db.posts.find(x=>x.id===id),r=p.reports[i];
+downloadFile('Relatorio_'+p.code+'.txt',`JULFERIIN\nPosto: ${p.code}\nNome: ${p.name}\nData: ${r.date}\nPeríodo: ${r.period}\nAtividades: ${r.activities}\nVendas: ${r.sales}\nCompras: ${r.purchases}\nDespesas: ${r.expenses}\nViagens: ${r.travel}\nDívidas: ${r.debts}\nCaixa entrada: ${r.cashIn}\nCaixa saída: ${r.cashOut}`,'text/plain;charset=utf-8');
+}
+renderBranches();
+</script>
+</body>
+</html>
